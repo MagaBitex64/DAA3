@@ -1,29 +1,41 @@
 import java.util.*;
+
 public class Kruskal {
-    public static MSTResult run(Graph g)
-    {
+    public static MSTResult run(Graph graph) {
+        List<Edge> edges = new ArrayList<>(graph.edges);
+        edges.sort(Comparator.comparingDouble(e -> e.weight));
+
+        int n = graph.Vertices();
+        int[] parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+
         long start = System.nanoTime();
-        List<Edge> edges = new ArrayList<>(g.edges);
-        Collections.sort(edges);
-        UF uf = new UF(g.Vertices());
         List<Edge> mst = new ArrayList<>();
-        long ops = 0; // comparisons + union/finds
+        double totalCost = 0;
+        int operations = 0;
+
         for (Edge e : edges) {
-            ops++; // edge consideration
-            int u = g.indexM(e.from);
-            int v = g.indexM(e.to);
-            if (u == -1 || v == -1) continue;
-            int ru = uf.find(u); ops++;
-            int rv = uf.find(v); ops++;
-            if (ru != rv) {
-                boolean merged = uf.union(ru, rv); ops++;
-                if (merged) mst.add(e);
+            int u = graph.indexM(e.from);
+            int v = graph.indexM(e.to);
+            if (find(u, parent) != find(v, parent)) {
+                union(u, v, parent);
+                mst.add(e);
+                totalCost += e.weight;
+                operations++;
             }
-            if (mst.size() == g.Vertices() - 1) break;
         }
-        long total = mst.stream().mapToLong(x -> x.weight).sum();
-        double timeMs = (System.nanoTime() - start) / 1e6;
-        long opsTotal = ops + uf.findCount + uf.unionCount;
-        return new MSTResult(mst, total, opsTotal, timeMs);
+
+        long end = System.nanoTime();
+        double timeMs = (end - start) / 1_000_000.0;
+        return new MSTResult(mst, totalCost, operations, timeMs);
+    }
+
+    private static int find(int x, int[] parent) {
+        if (parent[x] != x) parent[x] = find(parent[x], parent);
+        return parent[x];
+    }
+
+    private static void union(int a, int b, int[] parent) {
+        parent[find(a, parent)] = find(b, parent);
     }
 }
