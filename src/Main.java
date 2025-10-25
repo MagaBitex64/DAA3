@@ -13,7 +13,6 @@ public class Main {
         try (FileReader reader = new FileReader(inputPath)) {
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray graphs = data.getAsJsonArray("graphs");
-
             for (JsonElement gElem : graphs) {
                 JsonObject gObj = gElem.getAsJsonObject();
                 int id = gObj.get("id").getAsInt();
@@ -37,6 +36,12 @@ public class Main {
 
                 MSTResult prim = Prim.run(graph);
                 MSTResult kruskal = Kruskal.run(graph);
+
+                if(id <= 3)
+                {
+                    System.out.println("Graph of small id"+ id);
+                    GraphDrawer.draw(graph, prim);
+                }
 
                 JsonObject result = new JsonObject();
                 result.addProperty("graph_id", id);
