@@ -40,7 +40,7 @@ public class Main {
                 if(id <= 3)
                 {
                     System.out.println("Graph of small id"+ id);
-                    GraphDrawer.draw(graph, prim);
+                    GraphDrawer.draw(graph, prim,id);
                 }
 
                 JsonObject result = new JsonObject();
